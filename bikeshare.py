@@ -99,21 +99,24 @@ def time_stats(df):
     print('\nCalculating The Most Frequent Times of Travel...\n')
     start_time = time.time()
     dfTmp = df.copy()
-    # display the most common month
-    dfTmp['month'] = pd.to_datetime(df['Start Time']).dt.month
-    popular_month = availableMonths[dfTmp['month'].mode()[0]-1]
-    print("Most popular Month: {}".format(popular_month))
+    try:
+        # display the most common month
+        dfTmp['month'] = pd.to_datetime(df['Start Time']).dt.month
+        popular_month = availableMonths[dfTmp['month'].mode()[0]-1]
+        print("Most popular Month: {}".format(popular_month))
 
 
-    # display the most common day of week
-    dfTmp['day'] = pd.to_datetime(df['Start Time']).dt.day_name()
-    popular_day = dfTmp['day'].mode()[0]
-    print("Most popular day: {}".format(popular_day))
+        # display the most common day of week
+        dfTmp['day'] = pd.to_datetime(df['Start Time']).dt.day_name()
+        popular_day = dfTmp['day'].mode()[0]
+        print("Most popular day: {}".format(popular_day))
 
-    # display the most common start hour
-    dfTmp['hour'] = pd.to_datetime(df['Start Time']).dt.hour
-    popular_hour = dfTmp['hour'].mode()[0]
-    print("Most popular hour: {}".format(popular_hour))
+        # display the most common start hour
+        dfTmp['hour'] = pd.to_datetime(df['Start Time']).dt.hour
+        popular_hour = dfTmp['hour'].mode()[0]
+        print("Most popular hour: {}".format(popular_hour))
+    except:
+        print("Something Went Wrong")
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -125,17 +128,20 @@ def station_stats(df):
     print('\nCalculating The Most Popular Stations and Trip...\n')
     start_time = time.time()
 
-    # display most commonly used start station
-    popular_startStation = df['Start Station'].mode()[0]
-    print("Most commonly used start station: {}".format(popular_startStation))
+    try:
+        # display most commonly used start station
+        popular_startStation = df['Start Station'].mode()[0]
+        print("Most commonly used start station: {}".format(popular_startStation))
 
-    # display most commonly used end station
-    popular_endStation = df['End Station'].mode()[0]
-    print("Most commonly used end station: {}".format(popular_endStation))
+        # display most commonly used end station
+        popular_endStation = df['End Station'].mode()[0]
+        print("Most commonly used end station: {}".format(popular_endStation))
 
-    # display most frequent combination of start station and end station trip
-    popular_startEndStation = (df['Start Station']+ " ,End station: " +df['End Station']).mode()[0]
-    print("Most frequent combination of start station and end station: [Start station: {}]".format(popular_startEndStation))
+        # display most frequent combination of start station and end station trip
+        popular_startEndStation = (df['Start Station']+ " ,End station: " +df['End Station']).mode()[0]
+        print("Most frequent combination of start station and end station: [Start station: {}]".format(popular_startEndStation))
+    except:
+        print("Something Went Wrong")
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -146,18 +152,19 @@ def trip_duration_stats(df):
 
     print('\nCalculating Trip Duration...\n')
     start_time = time.time()
+    try:
+        # display total travel time
+        total_travel_time = (pd.to_datetime(df['End Time'])-pd.to_datetime(df['Start Time'])).sum()
+        total_travel_time = pd.Timedelta(total_travel_time).total_seconds()
+        print("Total travel time: {}".format(total_travel_time))
 
-    # display total travel time
-    total_travel_time = (pd.to_datetime(df['End Time'])-pd.to_datetime(df['Start Time'])).sum()
-    total_travel_time = pd.Timedelta(total_travel_time).total_seconds()
-    print("Total travel time: {}".format(total_travel_time))
 
-
-    # display mean travel time
-    mean_travel_time = (pd.to_datetime(df['End Time'])-pd.to_datetime(df['Start Time'])).mean()
-    mean_travel_time = pd.Timedelta(mean_travel_time).total_seconds()
-    print("Mean travel time: {}".format(mean_travel_time))
-
+        # display mean travel time
+        mean_travel_time = (pd.to_datetime(df['End Time'])-pd.to_datetime(df['Start Time'])).mean()
+        mean_travel_time = pd.Timedelta(mean_travel_time).total_seconds()
+        print("Mean travel time: {}".format(mean_travel_time))
+    except:
+        print("Something Went Wrong")
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -168,24 +175,28 @@ def user_stats(df):
 
     print('\nCalculating User Stats...\n')
     start_time = time.time()
+    try:
+        # Display counts of user types
+        user_types = dict(df.groupby('User Type').size())
+        print("Counts of user types")
+        for t, c in user_types.items():
+            print(t+": ",c)
 
-    # Display counts of user types
-    user_types = dict(df.groupby('User Type').size())
-    print("Counts of user types")
-    for t, c in user_types.items():
-        print(t+": ",c)
+        # Display counts of gender
+        if 'Birth Year' in df:
+            gender = dict(df.groupby('Gender').size())
+            print("\nCounts of gender")
+            for t, c in gender.items():
+                print(t+": ",c)
 
-    # Display counts of gender
-    gender = dict(df.groupby('Gender').size())
-    print("\nCounts of gender")
-    for t, c in gender.items():
-        print(t+": ",c)
+        # Display earliest, most recent, and most common year of birth
+            oldest = df['Birth Year'].min()
+            youngest = df['Birth Year'].max()
+            most_common_year = df['Birth Year'].mode()[0]
+            print("\nOldest: {}, Youngest: {}, Most common year of birth: {}".format(oldest, youngest, most_common_year))
+    except:
+        print("Something Went Wrong")
 
-    # Display earliest, most recent, and most common year of birth
-    oldest = df['Birth Year'].min()
-    youngest = df['Birth Year'].max()
-    most_common_year = df['Birth Year'].mode()[0]
-    print("\nOldest: {}, Youngest: {}, Most common year of birth: {}".format(oldest, youngest, most_common_year))
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
 
@@ -200,22 +211,28 @@ def main():
         user_stats(df)
         
         usr_ans = input("Would like want to see the raw data? Type 'yes' or 'no'.\n")
-        if usr_ans.lower() == "yes":
-            startIndx = 0
-            endIndx = 5
-            nRaws = df.shape[0]
-            print(df.iloc[startIndx:endIndx])
-            while True:
-                usr_ans = input("Would like to see 5 more rows of the data? Type 'yes' or 'no'.\n")
-                startIndx = endIndx
-                endIndx = startIndx + 5
-                if usr_ans.lower() == "yes":
-                    if endIndx < nRaws:
-                        print(df.iloc[startIndx:endIndx])
-                    else:
-                        print(df.iloc[startIndx:])
-                else:# usr_ans.lower() == "no":
-                    break
+        try:
+            if usr_ans.lower() == "yes":
+                startIndx = 0
+                endIndx = 5
+                nRaws = df.shape[0]
+                if endIndx < nRaws:
+                    print(df.iloc[startIndx:endIndx])
+                else:
+                    print(df.iloc[startIndx:])
+                while True:
+                    usr_ans = input("Would like to see 5 more rows of the data? Type 'yes' or 'no'.\n")
+                    startIndx = endIndx
+                    endIndx = startIndx + 5
+                    if usr_ans.lower() == "yes":
+                        if endIndx < nRaws:
+                            print(df.iloc[startIndx:endIndx])
+                        else:
+                            print(df.iloc[startIndx:])
+                    else:# usr_ans.lower() == "no":
+                        break
+        except:
+            print("Something Went Wrong")
         restart = input('\nWould you like to restart? Enter yes or no.\n')
         if restart.lower() != 'yes':
             break
